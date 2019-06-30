@@ -16,6 +16,7 @@ public class ObstacleGenerator {
     private Stage stage;
     private static final int OBSTACLE_SIZE = 10;
     private Random random;
+    private boolean doubleRow = false;
 
 
     public ObstacleGenerator(PlaneEscape planeEscape, World physicsWorld, Stage stage){
@@ -27,29 +28,66 @@ public class ObstacleGenerator {
     }
 
     public void regenerateObstacle(){
-        if(obstacleList.getFirst().getY() < stage.getCamera().position.y - PlaneEscape.WORLD_HEIGHT / 2){
-            obstacleList.removeFirst().remove();
-        }
-        if(obstacleList.size() == OBSTACLE_SIZE){
-            Obstacle obstacle = new Obstacle(planeEscape, physicsWorld, getRandomX(), obstacleList.getLast().getY() + 4,1.5f, 1.5f);
-            obstacleList.add(obstacle);
-            stage.addActor(obstacle);
+        if(obstacleList.getFirst().getY() < stage.getCamera().position.y - PlaneEscape.WORLD_HEIGHT / 2) {
+            if (!doubleRow) {
+                addObstacle();
+                Obstacle obstacle = obstacleList.removeFirst();
+                obstacle.remove();
+                if (obstacle.getY() == obstacleList.getFirst().getY()) {
+                    obstacleList.removeFirst().remove();
+                }
+            } else {
+                addDoubleObstacle();
+                Obstacle obstacle = obstacleList.removeFirst();
+                obstacle.remove();
+                if (obstacle.getY() == obstacleList.getFirst().getY()) {
+                    obstacleList.removeFirst().remove();
+                }
+            }
         }
     }
 
     private void initObstacles(){
         obstacleList = new ArrayDeque<Obstacle>(OBSTACLE_SIZE);
-        for(int i = 0; i < OBSTACLE_SIZE; i++) {
-            Obstacle obstacle = new Obstacle(planeEscape, physicsWorld, getRandomX(),15+ i * 4,1.5f, 1.5f);
-            obstacleList.add(obstacle);
-        }
-        for(Obstacle e: obstacleList){
-            stage.addActor(e);
+        Obstacle obstacle = new Obstacle(planeEscape, physicsWorld, getRandomX(),  4,1.5f, 1.5f);
+        obstacleList.add(obstacle);
+        for(int i = 1; i < OBSTACLE_SIZE; i++) {
+            if (!doubleRow) {
+                addObstacle();
+            } else {
+                addDoubleObstacle();
+            }
         }
 
     }
 
     private int getRandomX() {
         return random.nextInt((int)Math.floor(planeEscape.WORLD_WIDTH));
+    }
+
+    private int getRandomX(final int index) {
+        int newIndex = random.nextInt((int)Math.floor(planeEscape.WORLD_WIDTH));
+        while (newIndex == index) {
+            newIndex = random.nextInt((int)Math.floor(planeEscape.WORLD_WIDTH));
+        }
+        return newIndex;
+    }
+
+    private void addObstacle() {
+        Obstacle obstacle = new Obstacle(planeEscape, physicsWorld, getRandomX(), obstacleList.getLast().getY() + 4,1.5f, 1.5f);
+        doubleRow = true;
+        obstacleList.add(obstacle);
+        stage.addActor(obstacle);
+    }
+
+    private void addDoubleObstacle() {
+        int index = getRandomX();
+        Obstacle obstacle = new Obstacle(planeEscape, physicsWorld, getRandomX(), obstacleList.getLast().getY() + 4,1.5f, 1.5f);
+        obstacleList.add(obstacle);
+        Obstacle obstacle2 = new Obstacle(planeEscape, physicsWorld, getRandomX(index), obstacleList.getLast().getY(),1.5f, 1.5f);
+        obstacleList.add(obstacle2);
+        stage.addActor(obstacle);
+        stage.addActor(obstacle2);
+        doubleRow = false;
     }
 }
