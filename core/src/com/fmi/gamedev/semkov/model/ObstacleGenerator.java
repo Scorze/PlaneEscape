@@ -49,8 +49,9 @@ public class ObstacleGenerator {
 
     private void initObstacles(){
         obstacleList = new ArrayDeque<Obstacle>(OBSTACLE_SIZE);
-        Obstacle obstacle = new Obstacle(planeEscape, physicsWorld, getRandomX(),  4,1.5f, 1.5f);
+        Obstacle obstacle = new Obstacle(planeEscape, physicsWorld, getRandomX(),  8f,1.5f, 1.5f);
         obstacleList.add(obstacle);
+        stage.addActor(obstacle);
         for(int i = 1; i < OBSTACLE_SIZE; i++) {
             if (!doubleRow) {
                 addObstacle();
